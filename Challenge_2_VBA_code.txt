@@ -1,0 +1,137 @@
+Sub stock_3()
+
+Call Function_1("2018")
+Call Function_1("2019")
+Call Function_1("2020")
+Call Function_2("2018")
+Call Function_2("2019")
+Call Function_2("2020")
+Call Function_3("2018")
+Call Function_3("2019")
+Call Function_3("2020")
+
+
+
+
+
+End Sub
+
+Function Function_1(sheetname As String)
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim j As Long
+    
+    Set ws = ThisWorkbook.Worksheets(sheetname)
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    
+    j = 2 ' Fila de inicio para la salida
+    
+    For i = 2 To lastRow
+        Dim ticker As String
+        Dim open1 As Double
+        Dim close1 As Double
+        Dim total_volume As Double
+        Dim yearly_change As Double
+        Dim percent_change As Double
+        
+        ticker = ws.Cells(i, 1).Value
+        open1 = ws.Cells(i, 3).Value
+        total_volume = 0
+        
+        Do While ws.Cells(i, 1).Value = ticker
+            total_volume = total_volume + ws.Cells(i, 7).Value
+            i = i + 1
+        Loop
+        
+        close1 = ws.Cells(i - 1, 6).Value
+        yearly_change = close1 - open1
+        percent_change = yearly_change / open1
+        
+        ws.Cells(j, 9).Value = ticker
+        ws.Cells(j, 10).Value = yearly_change
+        ws.Cells(j, 11).Value = percent_change
+        ws.Cells(j, 12).Value = total_volume
+        ws.Cells(j, 11).NumberFormat = "0.00%"
+        
+        If yearly_change > 0 Then
+            ws.Cells(j, 10).Interior.Color = RGB(0, 255, 0) ' Green
+        ElseIf yearly_change < 0 Then
+            ws.Cells(j, 10).Interior.Color = RGB(255, 0, 0) ' Red
+        End If
+        
+        j = j + 1
+        i = i - 1 ' Restaurar el índice del bucle externo
+    Next i
+End Function
+
+
+
+Function Function_2(sheetname As String)
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Worksheets(sheetname)
+
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+
+    Dim i As Long
+    Dim maxChange As Double
+    Dim minChange As Double
+    Dim maxVolume As Double
+    Dim tickerMaxChange As String
+    Dim tickerMinChange As String
+    Dim tickerMaxVolume As String
+
+    maxChange = ws.Cells(2, 11).Value
+    minChange = ws.Cells(2, 11).Value
+    maxVolume = ws.Cells(2, 12).Value
+    tickerMaxChange = ws.Cells(2, 9).Value
+    tickerMinChange = ws.Cells(2, 9).Value
+    tickerMaxVolume = ws.Cells(2, 9).Value
+
+    For i = 3 To lastRow
+        If ws.Cells(i, 11).Value > maxChange Then
+            maxChange = ws.Cells(i, 11).Value
+            tickerMaxChange = ws.Cells(i, 9).Value
+        ElseIf ws.Cells(i, 11).Value < minChange Then
+            minChange = ws.Cells(i, 11).Value
+            tickerMinChange = ws.Cells(i, 9).Value
+        End If
+
+        If ws.Cells(i, 12).Value > maxVolume Then
+            maxVolume = ws.Cells(i, 12).Value
+            tickerMaxVolume = ws.Cells(i, 9).Value
+        End If
+    Next i
+
+    ws.Cells(2, 17).Value = maxChange
+    ws.Cells(3, 17).Value = minChange
+    ws.Cells(4, 17).Value = maxVolume
+
+    ws.Cells(2, 17).NumberFormat = "0.00%"
+    ws.Cells(3, 17).NumberFormat = "0.00%"
+    ws.Cells(4, 17).NumberFormat = "##0.00E+0"
+
+    ws.Cells(2, 16).Value = tickerMaxChange
+    ws.Cells(3, 16).Value = tickerMinChange
+    ws.Cells(4, 16).Value = tickerMaxVolume
+End Function
+
+
+Function Function_3(sheetname As String) ' funcion para llamar las columnas
+Dim ws As Worksheet
+    Set ws = ThisWorkbook.Worksheets(sheetname)
+
+ws.Cells(1, 9) = "Ticker"
+ws.Cells(1, 10) = "Yearly change"
+ws.Cells(1, 11) = "Percent change"
+ws.Cells(1, 12) = "Total stock volume"
+ws.Cells(1, 16) = "Ticker"
+ws.Cells(1, 17) = "Value"
+ws.Cells(2, 15) = "Greatest % increase"
+ws.Cells(3, 15) = "Greatest % cercrease"
+ws.Cells(4, 15) = "Greatest total volume"
+
+
+
+End Function
